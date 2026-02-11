@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    volumes:
+      - auth-data:/app/data
+      - ./backend/src:/app/src
+    environment:
+      - PORT=3001
+      - JWT_SECRET=local-auth-dev-secret-change-me
+      - DATA_DIR=/app/data
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:3001
+
+volumes:
+  auth-data:
