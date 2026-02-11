@@ -7,6 +7,7 @@ LocalAuth - local MVP auth provider (like Clerk/WorkOS) for development.
 - `backend/` - Express + TypeScript + better-sqlite3 API server (port 3001)
 - `frontend/` - React + TypeScript + Vite dashboard (port 5173)
 - `example/` - Standalone React example app consuming the auth API (port 5174)
+- `sdk/` - An sdk for interacting our local-auth
 
 ## Dev
 - Full stack: `docker compose up --build`

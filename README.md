@@ -11,44 +11,56 @@ docker compose up --build
 - **Dashboard**: http://localhost:5173
 - **Backend API**: http://localhost:3001
 
-## Example consumer app (no Docker)
+## Example Applications
 
-There's a standalone example React app in the `example` folder that talks to the LocalAuth backend directly (no Docker for the frontend).
+Two example applications are included to demonstrate different approaches:
 
-1. Make sure the backend is running  
-   - Either via Docker (`docker compose up --build`)  
-   - Or directly:
-     ```bash
-     cd backend
-     npm install
-     npm run dev
-     ```
+### 1. vite-with-sdk (Port 5173)
 
-2. Configure the example app env:
-   ```bash
-   cd example
-   cp .env.example .env
-   # then edit .env and set:
-   # VITE_API_URL=http://localhost:3001
-   # VITE_APP_API_KEY=la_your_real_app_key_here
-   ```
+Demonstrates using the official LocalAuth SDK with React. Best for quick integration.
 
-3. Start the example app:
-   ```bash
-   cd example
-   npm install
-   npm run dev
-   ```
+```bash
+cd example/vite-with-sdk
+npm install
+npm run dev
+```
 
-4. Open the example app in your browser:
-   - `http://localhost:5174`
+Features:
+- `LocalAuthProvider` wrapper
+- `useAuth` hook for authentication state
+- Login/Register forms
+- Protected dashboard
 
-5. Use the example UI (no extra config fields needed in the browser) to exercise:
-     - `POST /api/auth/signup`
-     - `POST /api/auth/signin`
-     - `GET /api/auth/me`
-     - `PUT /api/auth/me`
-     - `POST /api/auth/signout`
+### 2. vite-no-sdk (Port 5174)
+
+Demonstrates direct API integration without the SDK. Useful for understanding how the API works or when you need custom authentication logic.
+
+```bash
+cd example/vite-no-sdk
+npm install
+npm run dev
+```
+
+Features:
+- Custom `AuthContext` implementation
+- Direct API calls using fetch
+- React Router protected routes
+- Login/Register/Dashboard pages
+
+### Configuration
+
+Both examples use environment variables. Copy `.env.example` to `.env`:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | Backend URL (default: `http://localhost:3001`) |
+| `VITE_APP_API_KEY` | Your LocalAuth app API key |
+
+Create an app via the Dashboard to get an API key.
 
 ## How It Works
 
@@ -122,10 +134,114 @@ Each user record contains:
 - `phone`
 - `metadata` (JSON object for custom fields)
 
+## SDK
+
+LocalAuth provides an official SDK for TypeScript/JavaScript applications, including React support.
+
+### Installation
+
+```bash
+npm install localauth-sdk
+```
+
+### Client SDK
+
+Use the `LocalAuthClient` for vanilla JS/TS applications:
+
+```typescript
+import { LocalAuthClient } from 'localauth-sdk';
+
+const auth = new LocalAuthClient({
+  apiKey: 'your_api_key',
+  apiUrl: 'http://localhost:3001'
+});
+
+// Sign up
+await auth.signUp({
+  email: 'user@example.com',
+  username: 'johndoe',
+  password: 'securepassword',
+  fullName: 'John Doe'
+});
+
+// Sign in
+await auth.signIn({
+  email: 'user@example.com',
+  password: 'securepassword'
+});
+
+// Get current user
+const { user } = await auth.getMe();
+
+// Update user
+await auth.updateMe({ fullName: 'Jane Doe' });
+
+// Sign out
+await auth.signOut();
+
+// Access user state
+console.log(auth.user);      // Current user or null
+console.log(auth.token);     // JWT token or null
+console.log(auth.isAuthenticated); // boolean
+```
+
+### React SDK
+
+Wrap your app with `LocalAuthProvider` and use the `useAuth` hook:
+
+```tsx
+import { LocalAuthProvider, useAuth } from 'localauth-sdk/react';
+
+function App() {
+  return (
+    <LocalAuthProvider config={{ apiKey: 'your_api_key' }}>
+      <YourApp />
+    </LocalAuthProvider>
+  );
+}
+
+function LoginForm() {
+  const { signIn, user, isLoading, error } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await signIn({ email: 'user@example.com', password: 'password' });
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <div>{error.message}</div>}
+      {user ? (
+        <p>Welcome, {user.full_name}!</p>
+      ) : (
+        <button type="submit">Sign In</button>
+      )}
+    </form>
+  );
+}
+```
+
+#### useAuth Hook
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `user` | `User \| null` | Current authenticated user |
+| `isAuthenticated` | `boolean` | Whether user is logged in |
+| `isLoading` | `boolean` | Initial loading state |
+| `error` | `LocalAuthError \| null` | Any auth error |
+| `signUp(params)` | `Promise<void>` | Register new user |
+| `signIn(params)` | `Promise<void>` | Sign in user |
+| `signOut()` | `Promise<void>` | Sign out user |
+| `updateMe(params)` | `Promise<void>` | Update user profile |
+| `clearError()` | `void` | Clear error state |
+
 ## Architecture
 
 - **Backend**: Express + TypeScript + better-sqlite3
 - **Frontend**: React + TypeScript + Vite
+- **SDK**: TypeScript with React support
 - **Database**: SQLite (one main db for apps, one per-app db for users)
 - **Auth**: JWT tokens signed with per-app secret keys
 - **Deployment**: Docker Compose
