@@ -1,6 +1,11 @@
 
 <img width="1382" height="656" alt="cover" src="https://github.com/user-attachments/assets/d0ffea4a-a149-4a3a-8344-0e1c7b871109" />
 
+![License MIT](https://img.shields.io/badge/License-MIT-yellow)
+![Docker](https://img.shields.io/badge/Docker-Enabled-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![React](https://img.shields.io/badge/React-18.0-blue)
+
 # 🔐 LocalAuth
 
 A local MVP authentication provider (like Clerk / WorkOS) for development. Spin it up with Docker and use it as the auth backend while building your apps — then swap it out for a real provider when going to production.
