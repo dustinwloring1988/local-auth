@@ -1,3 +1,6 @@
+
+<img width="1382" height="656" alt="cover" src="https://github.com/user-attachments/assets/d0ffea4a-a149-4a3a-8344-0e1c7b871109" />
+
 # 🔐 LocalAuth
 
 A local MVP authentication provider (like Clerk / WorkOS) for development. Spin it up with Docker and use it as the auth backend while building your apps — then swap it out for a real provider when going to production.
